@@ -175,8 +175,7 @@ it wants to change fees.
     * [3:blockindex]
     * [1:outputindex]
     * [4:timestamp]
-    * [1:side]
-    * [1:pad]
+    * [2:flags]
     * [2:expiry]
     * [4:htlc-minimum-msat]
     * [4:fee-base-msat]
@@ -188,14 +187,14 @@ The creating node MUST set `signature` to the signature of the
 double-SHA256 of the entire remaining packet after `signature` using its own `node-id`.
 
 The creating node MUST set `blockheight`, `blockindex` and `outputindex` to
-match those in the already-sent `channel_announcement` message, and MUST set `side` to 0 if the creating node is `node-id-1` in that message, otherwise 1.
+match those in the already-sent `channel_announcement` message, and MUST set the least-significant bit of `flags` to 0 if the creating node is `node-id-1` in that message, otherwise 1.  It MUST set other bits of `flags` to zero.
 
-The creating node MUST set `timestamp` to greater than zero, and MUST set it to greater than any previously-sent `channel_update` for this channel, and MUST set `pad` to zero.
+The creating node MUST set `timestamp` to greater than zero, and MUST set it to greater than any previously-sent `channel_update` for this channel.
 
 It MUST set `expiry` to the number of blocks it will subtract from an incoming HTLC's `expiry`.  It MUST set `htlc-minimum-msat` to the minimum HTLC value it will accept, in millisatoshi.  It MUST set `fee-base-msat` to the base fee it will charge for any HTLC, in millisatoshi, and `fee-proportional-millionths` to the amount it will charge per millionth of a satoshi.
 
-The receiving node SHOULD fail the connection if `side` is not 0 or 1.
-It MUST ignore the contents of `pad`.  The receiving node SHOULD fail
+The receiving node MUST ignore `flags` other than the least significant bit.
+The receiving node SHOULD fail
 the connection if `signature` is invalid or incorrect for the entire
 message including unknown fields following `signature`, and MUST NOT
 further process the message.  The receiving node SHOULD ignore `ipv6`
